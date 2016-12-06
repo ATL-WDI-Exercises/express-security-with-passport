@@ -1,5 +1,8 @@
 var mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
+var bcrypt   = require('bcrypt-nodejs');
 var Todo = require('./models/todo');
+var User = require('./models/user');
 
 mongoose.connect('mongodb://localhost/todos');
 
@@ -11,19 +14,49 @@ function quit() {
 
 // a simple error handler
 function handleError(err) {
-  console.log('ERROR:', err);
+  console.error('ERROR:', err);
   quit();
   return err;
+}
+
+
+// create some User objects
+function getUsers() {
+  let batman = new User({
+    local: {
+      email: 'batman@batcave.com',
+      password: bcrypt.hashSync('robin',  bcrypt.genSaltSync(8))
+    }
+  });
+  let charlie = new User({
+    local: {
+      email: 'charlie@peanuts.com',
+      password: bcrypt.hashSync('snoopy', bcrypt.genSaltSync(8))
+    }
+  });
+  return [batman, charlie];
 }
 
 console.log('removing old todos...');
 Todo.remove({})
 .then(function() {
-  console.log('old todos removed');
+  console.log('removing old users...');
+  return User.remove({});
+})
+.then(function() {
+  return User.create(getUsers());
+})
+.then(function(users) {
+  console.log('Saved users:', users);
   console.log('creating some new todos...');
-  var groceries  = new Todo({ title: 'groceries',    completed: false });
-  var feedTheCat = new Todo({ title: 'feed the cat', completed: true  });
-  return Todo.create([groceries, feedTheCat]);
+
+  var cleanBatcave   = new Todo({ user: users[0], title: 'Clean the Batcave',  completed: false });
+  var washBatmobile  = new Todo({ user: users[0], title: 'Wash the Batmobile', completed: true  });
+
+  var kickFootball   = new Todo({ user: users[1], title: 'Kick the Football',  completed: false });
+  var giveSnoopyBath = new Todo({ user: users[1], title: 'Give Snoopy a Bath', completed: true  });
+
+  return Todo.create([cleanBatcave, washBatmobile, kickFootball, giveSnoopyBath]);
 })
 .then(function(savedTodos) {
   console.log('Just saved', savedTodos.length, 'todos.');
@@ -34,16 +67,16 @@ Todo.remove({})
   allTodos.forEach(function(todo) {
     console.log(todo);
   });
-  return Todo.findOne({title: 'groceries'});
+  return Todo.findOne({title: 'Clean the Batcave'});
 })
-.then(function(groceries) {
-  groceries.completed = true;
-  return groceries.save();
+.then(function(cleanBatcave) {
+  cleanBatcave.completed = true;
+  return cleanBatcave.save();
 })
-.then(function(groceries) {
-  console.log('updated groceries:', groceries);
-  return groceries.remove();
-})
+// .then(function(cleanBatcave) {
+//   console.log('updated cleanBatcave:', cleanBatcave);
+//   return cleanBatcave.remove();
+// })
 .then(function(deleted) {
   return Todo.find({});
 })
@@ -53,4 +86,5 @@ Todo.remove({})
     console.log(todo);
   });
   quit();
-});
+})
+.catch(handleError);
