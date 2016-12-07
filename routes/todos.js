@@ -104,7 +104,7 @@ router.put('/:id', authenticate, function(req, res, next) {
 // DESTROY
 router.delete('/:id', authenticate, function(req, res, next) {
   Todo.findById(req.params.id)
-  .then(function() {
+  .then(function(todo) {
     if (!todo.user.equals(currentUser.id)) return next(makeError(res, 'Nacho Todo!', 401));
     return todo.remove();
   })
