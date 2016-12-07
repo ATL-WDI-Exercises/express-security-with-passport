@@ -23,11 +23,7 @@ function authenticate(req, res, next) {
 // INDEX
 router.get('/', authenticate, function(req, res, next) {
   // get all the todos and render the index view
-  // Todo.find({}).sort('-createdAt')
-
-  console.log('currentUser:', currentUser);
-
-  var todos = global.currentUser.todos;
+  var todos = currentUser.todos;
   res.render('todos/index', { todos: todos, message: req.flash() });
 });
 
@@ -37,7 +33,7 @@ router.get('/new', authenticate, function(req, res, next) {
     title: '',
     completed: false
   };
-  res.render('todos/new', { todo: todo } );
+  res.render('todos/new', { todo: todo, message: req.flash() });
 });
 
 // SHOW
@@ -49,10 +45,10 @@ router.get('/:id', authenticate, function(req, res, next) {
 
 // CREATE
 router.post('/', authenticate, function(req, res, next) {
-  var todo = new Todo({
-    title:     req.body.title,
+  var todo = {
+    title: req.body.title,
     completed: req.body.completed ? true : false
-  });
+  };
   // Since a user's todos are an embedded document, we just need to push a new
   // TODO to the user's list of todos and save the user.
   currentUser.todos.push(todo);
@@ -62,7 +58,6 @@ router.post('/', authenticate, function(req, res, next) {
   }, function(err) {
     return next(err);
   });
-
 });
 
 // EDIT
@@ -106,15 +101,13 @@ router.delete('/:id', authenticate, function(req, res, next) {
 router.get('/:id/toggle', authenticate, function(req, res, next) {
   var todo = currentUser.todos.id(req.params.id);
   if (!todo) return next(makeError(res, 'Document not found', 404));
-  else {
-    todo.completed = !todo.completed;
-    currentUser.save()
-    .then(function(saved) {
-      res.redirect('/todos');
-    }, function(err) {
-      return next(err);
-    });
-  }
+  todo.completed = !todo.completed;
+  currentUser.save()
+  .then(function(saved) {
+    res.redirect('/todos');
+  }, function(err) {
+    return next(err);
+  });
 });
 
 module.exports = router;

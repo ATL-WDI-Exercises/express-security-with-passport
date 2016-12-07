@@ -40,9 +40,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-// require('./config/passport/passport')(passport);
-let passportConfigFunction = require('./config/passport/passport');
-passportConfigFunction(passport);
+require('./config/passport/passport')(passport);
 
 // This middleware will allow us to use the currentUser in our views and routes.
 app.use(function (req, res, next) {
@@ -50,7 +48,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-
+// Routes
 app.use('/', homeRouter);
 app.use('/users', usersRouter);
 app.use('/todos', todosRouter);
