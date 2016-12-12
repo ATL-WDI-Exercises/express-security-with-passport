@@ -14,8 +14,12 @@ var passportConfig = function(passport) {
   });
 
   passport.deserializeUser(function(id, callback) {
-    User.findById(id, function(err, user) {
-      callback(err, user);
+    User.findById(id)
+    .then(function(user) {
+      callback(null, user);
+    })
+    .catch(function(err) {
+      callback(err, null);
     });
   });
 };

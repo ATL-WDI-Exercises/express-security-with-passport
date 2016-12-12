@@ -15,8 +15,8 @@ var strategy = new LocalStrategy({
     }
 
     // Find a user with this e-mail
-    User.findOne({ 'local.email' :  email }, function(err, user) {
-      if (err) return callback(err);
+    User.findOne({ 'local.email' :  email })
+    .then(function(user) {
       if (user) {
         // A user with this email already exists
         return callback(null, false, req.flash('error', 'This email is already taken.'));
@@ -26,15 +26,18 @@ var strategy = new LocalStrategy({
         var newUser            = new User();
         newUser.local.email    = email;
         newUser.local.password = newUser.encrypt(password);
-
-        newUser.save(function(err) {
-          return callback(err, newUser);
+        return newUser.save()
+        .then(function(saved) {
+          return callback(null, saved);
         });
       }
       else {
         let message = 'Your password is lame! Passwords should be at least 8 characters, contain at least 1 lowercase letter, 1 uppercase letter, 1 numeric character, and 1 special character.';
         return callback(null, false, req.flash('error', message));
       }
+    })
+    .catch(function(err) {
+      return callback(err);
     });
   });
 

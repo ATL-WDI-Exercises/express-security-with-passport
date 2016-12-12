@@ -7,9 +7,8 @@ var strategy = new LocalStrategy({
     passReqToCallback : true
   }, function(req, email, password, callback) {
     // Search for a user with this email
-    User.findOne({ 'local.email' : email }, function(err, user) {
-      if (err) return callback(err);
-
+    User.findOne({ 'local.email' : email })
+    .then(function(user) {
       // If no user is found
       if (!user) {
         return callback(null, false, req.flash('error', 'User not found.'));
@@ -20,6 +19,9 @@ var strategy = new LocalStrategy({
         return callback(null, false, req.flash('error', 'Oops! Wrong password.'));
       }
       return callback(null, user);
+    })
+    .catch(function(err) {
+      return callback(err);
     });
   });
 
