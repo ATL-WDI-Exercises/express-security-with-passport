@@ -32,7 +32,8 @@ var strategy = new LocalStrategy({
         });
       }
       else {
-        return callback(null, false, req.flash('error', 'Your password is lame!'));
+        let message = 'Your password is lame! Passwords should be at least 8 characters, contain at least 1 lowercase letter, 1 uppercase letter, 1 numeric character, and 1 special character.';
+        return callback(null, false, req.flash('error', message));
       }
     });
   });
