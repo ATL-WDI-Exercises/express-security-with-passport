@@ -32,6 +32,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({ secret: 'WDI Rocks!',
                   resave: true,
@@ -50,7 +51,6 @@ app.use(function (req, res, next) {
 });
 
 // Routes
-app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', homeRouter);
 app.use('/users', usersRouter);
 app.use('/todos', todosRouter);

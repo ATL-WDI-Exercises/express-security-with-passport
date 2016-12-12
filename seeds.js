@@ -11,7 +11,7 @@ function quit() {
 
 // a simple error handler
 function handleError(err) {
-  console.log('ERROR:', err);
+  console.error('ERROR:', err);
   quit();
   return err;
 }
