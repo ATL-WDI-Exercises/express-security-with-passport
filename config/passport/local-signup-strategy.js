@@ -8,6 +8,12 @@ var strategy = new LocalStrategy({
     passReqToCallback : true
   },
   function(req, email, password, callback) {
+
+    // check password confirmation
+    if (req.body.password !== req.body.passwordConfirmation) {
+      return callback(null, false, req.flash('error', 'Password and Password Confirmation do not match.'));
+    }
+
     // Find a user with this e-mail
     User.findOne({ 'local.email' :  email }, function(err, user) {
       if (err) return callback(err);
