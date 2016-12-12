@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var methodOverride = require('method-override');
+
 var passport = require('passport');
 var session = require('express-session');
 var flash = require('connect-flash');
@@ -39,6 +40,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
+// Configure passport with our custom configuration code
 require('./config/passport/passport')(passport);
 
 // This middleware will allow us to use the currentUser in our views and routes.

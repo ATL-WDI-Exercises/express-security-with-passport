@@ -45,10 +45,10 @@ router.get('/:id', authenticate, function(req, res, next) {
 
 // CREATE
 router.post('/', authenticate, function(req, res, next) {
-  var todo = {
-    title: req.body.title,
+  var todo = new Todo({
+    title:     req.body.title,
     completed: req.body.completed ? true : false
-  };
+  });
   // Since a user's todos are an embedded document, we just need to push a new
   // TODO to the user's list of todos and save the user.
   currentUser.todos.push(todo);
